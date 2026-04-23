@@ -6,10 +6,14 @@ import express from 'express';
 import { ruruHTML } from 'ruru/server';
 
 // Construct a schema, using GraphQL schema language
-const schema = buildSchema(`type Query { hello: String, bye: String, random: Float } `);
+const schema = buildSchema(`type Query { hello: String, bye: String, random: Float }  type Mutation { register(username: String, email: String, password_hash: String): String}`);
 
 // The root provides a resolver function for each API endpoint
 const root = {
+  register(username, email, password_hash) {
+
+  },
+
   hello() {
     return 'Hello world!';
   },
@@ -42,3 +46,7 @@ app.get('/', (_req, res) => {
   res.type('html');
   res.end(ruruHTML({ endpoint: '/graphql' }));
 });
+
+
+
+

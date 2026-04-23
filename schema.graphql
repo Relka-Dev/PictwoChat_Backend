@@ -1,0 +1,8 @@
+type Query {
+  hello: String
+  bye: String
+  random: Float
+}
+type Mutation {
+  register(username: String, email: String, password_hash: String): String
+}
