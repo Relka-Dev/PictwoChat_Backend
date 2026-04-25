@@ -1,8 +1,17 @@
-const { MongoClient, ServerApiVersion } = require('mongodb');
-const uri = "mongodb+srv://pictwochat_backend:<db_password>@pictwochat.qbqfjaw.mongodb.net/?appName=PictwoChat";
+import { MongoClient, ServerApiVersion } from 'mongodb';
+import { fileURLToPath } from "url";
+import dotenv from "dotenv";
+import path from "path";
+
+// Load .env file
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+dotenv.config({ path: path.join(__dirname, ".env") });
+
+// Load MongoDB config
+const MONGODB_URI = process.env.MONGODB_URI || "mongodb://127.0.0.1:27017";
 
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
-const client = new MongoClient(uri, {
+const client = new MongoClient(MONGODB_URI, {
   serverApi: {
     version: ServerApiVersion.v1,
     strict: true,
