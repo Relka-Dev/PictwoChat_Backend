@@ -21,25 +21,32 @@ const MONGODB_DB = process.env.MONGODB_DB || "pictwochat";
 const typeDefs = loadSchemaSync('./schema/schema.graphql', { loaders: [new GraphQLFileLoader()] });
 
 // Resolvers
-const buildResolvers = () => {
+const buildResolvers = ({ collection }) => {
   return {
     Query: {
       hello: async () => {
         return "Hello!"
+      },
+    },
+    Mutation: {
+      testInsert: async () => {
+        await collection.insertOne({"value": "MUHAHAHA"})
+        return "Successfully inserted data into DB."
       },
     }
   };  
 };
 
 async function startServer() {
-  // const client = new MongoClient(MONGODB_URI);
-  // await client.connect();
-  // const collection = client.db(MONGODB_DB).collection(BLOCKS_COLLECTION);
+  const client = new MongoClient(MONGODB_URI);
+  await client.connect();
+  const database = client.db(MONGODB_DB);
+  const collection = database.collection("test")
 
   const app = express();
   const apolloServer = new ApolloServer({
     typeDefs,
-    resolvers: buildResolvers(),
+    resolvers: buildResolvers({ collection }),
   });
 
   await apolloServer.start();
