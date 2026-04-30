@@ -1,0 +1,8 @@
+#import * from "./user.graphql"
+
+type Query {
+    hello: String
+}
+type Mutation {
+    testInsert: String
+}

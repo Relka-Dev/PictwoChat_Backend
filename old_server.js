@@ -4,9 +4,17 @@ import { buildSchema } from 'graphql';
 import { createHandler } from 'graphql-http/lib/use/express';
 import express from 'express';
 import { ruruHTML } from 'ruru/server';
+import dotenv from "dotenv";
+import path from "path";
+import { fileURLToPath } from "url";
+
+// Load .env file
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+dotenv.config({ path: path.join(__dirname, ".env") });
 
 // Construct a schema, using GraphQL schema language
-const schema = buildSchema(`type Query { hello: String, bye: String, random: Float }  type Mutation { register(username: String, email: String, password_hash: String): String}`);
+// const schema = buildSchema(`type Query { hello: String, bye: String, random: Float }  type Mutation { register(username: String, email: String, password_hash: String): String}`);
+const schema = buildSchema(path.join(__dirname, 'schema.graphql'))
 
 // The root provides a resolver function for each API endpoint
 const root = {
