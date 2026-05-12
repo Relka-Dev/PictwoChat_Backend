@@ -1,7 +1,9 @@
 type User {
+    _id: Int!
     username: String!
+    email: String!
     password: String!
 }
-type Query {
+extend type Query {
     users: [User]
 }

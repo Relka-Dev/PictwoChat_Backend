@@ -8,6 +8,7 @@ import path from "path";
 import { fileURLToPath } from "url";
 import { loadSchemaSync } from "@graphql-tools/load"
 import { GraphQLFileLoader } from '@graphql-tools/graphql-file-loader'
+import { resolvers } from "./src/resolvers.js";
 
 // Load .env file
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -20,23 +21,6 @@ const MONGODB_DB = process.env.MONGODB_DB || "pictwochat";
 // Import GraphQL schema from file
 const typeDefs = loadSchemaSync('./schema/schema.graphql', { loaders: [new GraphQLFileLoader()] });
 
-// Resolvers
-const buildResolvers = ({ collection }) => {
-  return {
-    Query: {
-      hello: async () => {
-        return "Hello!"
-      },
-    },
-    Mutation: {
-      testInsert: async () => {
-        await collection.insertOne({"value": "MUHAHAHA"})
-        return "Successfully inserted data into DB."
-      },
-    }
-  };  
-};
-
 async function startServer() {
   const client = new MongoClient(MONGODB_URI);
   await client.connect();
@@ -46,7 +30,7 @@ async function startServer() {
   const app = express();
   const apolloServer = new ApolloServer({
     typeDefs,
-    resolvers: buildResolvers({ collection }),
+    resolvers: resolvers({ database }),
   });
 
   await apolloServer.start();

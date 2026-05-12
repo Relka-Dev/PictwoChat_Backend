@@ -1,8 +1,11 @@
 #import * from "./user.graphql"
+#import * from "./room.graphql"
+#import * from "./message.graphql"
 
 type Query {
     hello: String
 }
+
 type Mutation {
     testInsert: String
 }
