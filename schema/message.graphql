@@ -1,0 +1,19 @@
+
+type Message {
+    _id: Int!
+    user_id: Int!
+    room_id: Int!
+    timestamp: String!
+    text: String
+    image: String
+}
+
+extend type Mutation {
+    sendMessage(
+        user_id: Int!,
+        room_id: Int!,
+        timestamp: String!,
+        text: String,
+        image: String
+    ): Message
+}
