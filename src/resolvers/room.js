@@ -1,4 +1,5 @@
 import SimpleSchema from "simpl-schema";
+import { ObjectId } from "mongodb";
 
 const COLLECTION_NAME = 'rooms';
 const ROOM_SCHEMA = new SimpleSchema({
@@ -50,5 +51,17 @@ export const roomMutations = (database) => ({
       name: createdRoom.name,
       createdAt: createdRoom.createdAt,
     }
+  },
+  /** Remove an existing room by id. */
+  removeRoom: async (_parent, args) => {
+    const collection = database.collection(COLLECTION_NAME);
+
+    const result = await collection.deleteOne({ _id: new ObjectId(args._id) });
+    
+    if (result.deletedCount === 0) {
+      throw new Error('Failed to delete room');
+    }
+
+    return `Successfully deleted room with ID ${args._id}`;
   },
 })
