@@ -2,14 +2,16 @@ type User {
     _id: ID!
     username: String!
     email: String!
+    createdAt: String!
+}
+
+type AuthPayload {
+    token: String
+    message: String
 }
 
 extend type Query {
     users: [User]
-}
-
-type AuthPayload {
-    token: String!
 }
 
 extend type Mutation {
