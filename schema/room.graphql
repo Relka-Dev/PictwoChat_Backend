@@ -1,6 +1,7 @@
 type Room {
     _id: String!
     name: String!
+    createdAt: String!
 }
 
 extend type Query {
@@ -9,4 +10,5 @@ extend type Query {
 
 extend type Mutation {
     createRoom(name: String!): Room
+    removeRoom(_id: String!): String
 }
