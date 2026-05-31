@@ -1,9 +1,20 @@
 type User {
-    _id: Int!
+    _id: ID!
     username: String!
     email: String!
-    password: String!
+    createdAt: String!
 }
+
+type AuthPayload {
+    token: String
+    message: String
+}
+
 extend type Query {
     users: [User]
+}
+
+extend type Mutation {
+    register(username: String!, email: String!, password: String!): AuthPayload
+    login(email: String!, password: String!): AuthPayload
 }
