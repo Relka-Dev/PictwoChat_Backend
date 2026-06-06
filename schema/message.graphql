@@ -1,19 +1,26 @@
+#import * from "./user.graphql"
+#import * from "./room.graphql"
 
 type Message {
-    _id: Int!
-    user_id: Int!
-    room_id: Int!
-    timestamp: String!
+    _id: String!
+    user: User!
+    room: Room!
     text: String
     image: String
+    createdAt: String!
+}
+
+extend type Query {
+    roomMessages(
+        room_id: String!
+    ): [Message]
 }
 
 extend type Mutation {
     sendMessage(
-        user_id: Int!,
-        room_id: Int!,
-        timestamp: String!,
+        user_id: String!,
+        room_id: String!,
         text: String,
-        image: String
+        image: String,
     ): Message
 }
