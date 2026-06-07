@@ -9,6 +9,16 @@ import { fileURLToPath } from "url";
 import { loadSchemaSync } from "@graphql-tools/load"
 import { GraphQLFileLoader } from '@graphql-tools/graphql-file-loader'
 import { resolvers } from "./src/resolvers.js";
+import jwt from "jsonwebtoken";
+
+function getUserFromToken(token) {
+  if (!token) return null;
+  try {
+    return jwt.verify(token, process.env.JWT_SECRET);
+  } catch {
+    return null;
+  }
+}
 
 // Load .env file
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -35,7 +45,18 @@ async function startServer() {
 
   await apolloServer.start();
 
-  app.use("/graphql", cors(), express.json(), expressMiddleware(apolloServer));
+  app.use(
+  "/graphql",
+  cors(),
+  express.json(),
+  expressMiddleware(apolloServer, {
+    context: async ({ req }) => {
+      const token = (req.headers.authorization || "").replace("Bearer ", "");
+      const user = getUserFromToken(token);
+      return { user };
+    },
+  })
+);
 
   app.get("/", (_, res) => {
     res.send("GraphQL API is running. Use /graphql endpoint.");
