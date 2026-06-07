@@ -1,6 +1,7 @@
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import SimpleSchema from "simpl-schema";
+import { ObjectId } from "mongodb";
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const COLLECTION_NAME = 'users';
@@ -28,6 +29,12 @@ const USER_SCHEMA = new SimpleSchema({
 
 export const userQueries = (database) => ({
   users: async () => await database.collection(COLLECTION_NAME).find({}).toArray(),
+  profile: async (_parent, _args, context) => {
+    if (!context.user) throw new Error("Not authenticated");
+    return await database.collection('users').findOne({
+      _id: new ObjectId(context.user.userId),
+    });
+  },
 });
 
 export const userMutations = (database) => ({
@@ -68,5 +75,17 @@ export const userMutations = (database) => ({
 
     const token = jwt.sign({ userId: user._id.toString() }, process.env.JWT_SECRET, { expiresIn: '1h' });
     return { token: token, message: "Sucessfully logged in!" };
+  },
+  updateProfile: async (_parent, args, context) => {
+    if (!context.user) throw new Error("Not authenticated");
+    const collection = database.collection('users');
+    const _id = new ObjectId(context.user.userId);
+
+    await collection.updateOne(
+      { _id },
+      { $set: { username: args.username, email: args.email, pfp: args.pfp } }
+    );
+
+    return await collection.findOne({ _id });
   },
 });
