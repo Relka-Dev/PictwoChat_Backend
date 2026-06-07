@@ -8,7 +8,7 @@ const ROOM_COLLECTION_NAME = 'rooms';
 const USER_COLLECTION_NAME = 'users';
 const MESSAGE_SCHEMA = new SimpleSchema({
   user_id: {
-    type: String,    
+    type: String,
   },
   room_id: {
     type: String,
@@ -31,18 +31,25 @@ const MESSAGE_SCHEMA = new SimpleSchema({
 
 export const messageQueries = (database) => ({
   roomMessages: async (_parent, args) => {
-    let result = await database.collection(COLLECTION_NAME).find({room_id: args.room_id}).toArray();
+    const messages = await database
+      .collection(COLLECTION_NAME)
+      .find({ room_id: args.room_id })
+      .toArray();
 
-    // Attach user and room data to each message
-    await result.forEach(msg => {
-      msg['user'] = database.collection(USER_COLLECTION_NAME).findOne({_id: new ObjectId(msg.user_id)});
-      msg['room'] = database.collection(ROOM_COLLECTION_NAME).findOne({_id: new ObjectId(msg.room_id)});
-    });
-
-    return result;
-  }
+    return await Promise.all(
+      messages.map(async (msg) => ({
+        ...msg,
+        _id: msg._id.toString(),
+        user: await database
+          .collection(USER_COLLECTION_NAME)
+          .findOne({ _id: new ObjectId(msg.user_id) }),
+        room: await database
+          .collection(ROOM_COLLECTION_NAME)
+          .findOne({ _id: new ObjectId(msg.room_id) }),
+      }))
+    );
+  },
 });
-
 export const messageMutations = (database) => ({
   sendMessage: async (_parent, args) => {
     const collection = database.collection(COLLECTION_NAME);
@@ -82,11 +89,11 @@ export const messageMutations = (database) => ({
 
     return {
       _id: result.insertedId.toString(),
-      user_id: doc.user_id,
-      room_id: doc.room_id,
+      user,
+      room,
       text: doc.text,
       image: doc.image,
       createdAt: doc.createdAt,
-    }
+    };
   },
 });
