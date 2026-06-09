@@ -28,6 +28,10 @@ dotenv.config({ path: path.join(__dirname, ".env") });
 const MONGODB_URI = process.env.MONGODB_URI || "mongodb://127.0.0.1:27017";
 const MONGODB_DB = process.env.MONGODB_DB || "pictwochat";
 
+// Load Frontend URL for CORS
+const FRONTEND_URL = process.env.FRONTEND_URL || "http://localhost:3000";
+
+
 // Import GraphQL schema from file
 const typeDefs = loadSchemaSync('./schema/schema.graphql', { loaders: [new GraphQLFileLoader()] });
 
@@ -47,7 +51,7 @@ async function startServer() {
 
   app.use(
   "/graphql",
-  cors(),
+  cors({ origin: FRONTEND_URL }),
   express.json(),
   expressMiddleware(apolloServer, {
     context: async ({ req }) => {

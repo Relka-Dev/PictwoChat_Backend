@@ -9,7 +9,7 @@ A small chatting app inspired by Nintendo DS Pictochat.
 - MongoDB instance (Atlas for example)
 
 ### .env
-Copy the `.env.example` file, rename it to `.env`, and add the required keys, such as the MongoDB settings, and a JWT secret.
+Copy the `.env.example` file, rename it to `.env`, and add the required keys, such as the MongoDB settings, the JWT secret and the Frontend URL for CORS.
 
 ### Running
 1. Run `npm install` to install dependencies.
