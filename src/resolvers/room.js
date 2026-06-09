@@ -12,6 +12,9 @@ const ROOM_SCHEMA = new SimpleSchema({
   createdAt: {
     type: Date,
   },
+  createdBy: {
+    type: String, optional: true
+  },
 })
 
 export const roomQueries = (database) => ({
@@ -24,13 +27,14 @@ export const roomQueries = (database) => ({
 
 export const roomMutations = (database) => ({
   /** Create a new room. */
-  createRoom: async (_parent, args) => {
+  createRoom: async (_parent, args, context) => {
     const collection = database.collection(COLLECTION_NAME)
 
     // Define room document
     const doc = {
       name: args.name,
       createdAt: new Date(), // Returns current datetime
+      createdBy: context.user?.userId,
     }
 
     // Verification and cleaning
@@ -39,13 +43,13 @@ export const roomMutations = (database) => ({
 
     // Insert room into database
     const result = await collection.insertOne(cleanedDoc);
-    
+
     // Return created room
     const createdRoom = await collection.findOne({ _id: result.insertedId });
     if (!createdRoom) {
       throw new Error('Failed to create room');
     }
-    
+
     return {
       _id: createdRoom._id.toString(),
       name: createdRoom.name,
@@ -53,14 +57,18 @@ export const roomMutations = (database) => ({
     }
   },
   /** Remove an existing room by id. */
-  removeRoom: async (_parent, args) => {
+  removeRoom: async (_parent, args, context) => {
     const collection = database.collection(COLLECTION_NAME);
 
-    const result = await collection.deleteOne({ _id: new ObjectId(args._id) });
-    
-    if (result.deletedCount === 0) {
-      throw new Error('Failed to delete room');
+    const room = await collection.findOne({ _id: new ObjectId(args._id) });
+    if (!room) throw new Error('Room not found');
+
+    if (room.createdBy !== context.user?.userId) {
+      throw new Error('Not authorized to delete this room');
     }
+
+    const result = await collection.deleteOne({ _id: new ObjectId(args._id) });
+    if (result.deletedCount === 0) throw new Error('Failed to delete room');
 
     return `Successfully deleted room with ID ${args._id}`;
   },

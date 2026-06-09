@@ -2,6 +2,7 @@ type Room {
     _id: String!
     name: String!
     createdAt: String!
+    createdBy: String
 }
 
 extend type Query {
